@@ -2,10 +2,10 @@
 Ce projet vise à entraîner un modèle de classification de texte à l'aide d'Airflow et ClearML, et à le déployer via une API FastAPI et une interface utilisateur Streamlit.
 
 ### Liens utiles
-- Airflow: http://localhost:8080/dags
-- ClearML: https://app.clear.ml
-- API: http://localhost:8000/predict
-- Streamlit: http://localhost:8501
+- **Airflow** : http://localhost:8080/dags
+- **ClearML** : https://app.clear.ml
+- **API** : http://localhost:8000/predict
+- **Streamlit** : http://localhost:8501
 
 ### Description du projet
 On scrape d'abord 3 sites respectivement de :
