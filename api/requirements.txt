@@ -1,0 +1,5 @@
+fastapi 
+pydantic 
+datetime 
+pickle5
+uvicorn
