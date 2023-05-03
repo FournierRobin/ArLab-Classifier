@@ -2,4 +2,4 @@ logs/*
 __pycache__
 .DS_Store
 .env
-testinghings.ipynb
+testingthings.ipynb
