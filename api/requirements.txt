@@ -3,3 +3,5 @@ pydantic
 datetime 
 pickle5
 uvicorn
+clearml
+joblib

@@ -181,12 +181,6 @@ def pipeline_scraping_dataset():
     creating_full_df(current_date=current_date, football_df=football_df, rugby_df=rugby_df, basket_df=basket_df)
 
 def pipeline_create_clearml_dataset():
-    import os
-    os.environ['CLEARML_API_HOST'] = "https://api.clear.ml"
-    os.environ['CLEARML_WEB_HOST'] = "https://app.clear.ml"
-    os.environ['CLEARML_FILES_HOST'] = "https://files.clear.ml"
-    os.environ['CLEARML_API_ACCESS_KEY'] = "NXRS736MXOJ50V3NIZD5"
-    os.environ['CLEARML_API_SECRET_KEY'] = "ibFYNMzbUiVb8VpRZOZducTBVRUHfpDMWLe4AQE2C4vrsnl4JU"
     current_date = dt.datetime.now().strftime('%d-%m')
     
     task = Task.init(project_name='ArLab Classifier', task_name=f'1 : Create dataset {current_date}')
@@ -208,13 +202,6 @@ def pipeline_create_clearml_dataset():
 def pipeline_clearml_preprocess_dataset():
     from sklearn.feature_extraction.text import CountVectorizer
     from sklearn.model_selection import train_test_split
-
-    import os
-    os.environ['CLEARML_API_HOST'] = "https://api.clear.ml"
-    os.environ['CLEARML_WEB_HOST'] = "https://app.clear.ml"
-    os.environ['CLEARML_FILES_HOST'] = "https://files.clear.ml"
-    os.environ['CLEARML_API_ACCESS_KEY'] = "NXRS736MXOJ50V3NIZD5"
-    os.environ['CLEARML_API_SECRET_KEY'] = "ibFYNMzbUiVb8VpRZOZducTBVRUHfpDMWLe4AQE2C4vrsnl4JU"
     
     current_date = dt.datetime.now().strftime('%d-%m')
 
@@ -235,15 +222,6 @@ def pipeline_clearml_preprocess_dataset():
 
     task.mark_completed()
 
-def check_artifacts(ds, **kwargs):
-    import os
-    os.environ['CLEARML_API_HOST'] = "https://api.clear.ml"
-    os.environ['CLEARML_WEB_HOST'] = "https://app.clear.ml"
-    os.environ['CLEARML_FILES_HOST'] = "https://files.clear.ml"
-    os.environ['CLEARML_API_ACCESS_KEY'] = "NXRS736MXOJ50V3NIZD5"
-    os.environ['CLEARML_API_SECRET_KEY'] = "ibFYNMzbUiVb8VpRZOZducTBVRUHfpDMWLe4AQE2C4vrsnl4JU"
-    
-    current_date = dt.datetime.now().strftime('%d-%m')
     try:
         dataset_task = Task.get_task(project_name="ArLab Classifier", task_name=f"2 : Preprocess dataset {current_date}")
         X_train = dataset_task.artifacts['X_train'].get()
@@ -256,12 +234,6 @@ def check_artifacts(ds, **kwargs):
 
 def pipeline_clearml_create_model():
     import joblib
-    import os
-    os.environ['CLEARML_API_HOST'] = "https://api.clear.ml"
-    os.environ['CLEARML_WEB_HOST'] = "https://app.clear.ml"
-    os.environ['CLEARML_FILES_HOST'] = "https://files.clear.ml"
-    os.environ['CLEARML_API_ACCESS_KEY'] = "NXRS736MXOJ50V3NIZD5"
-    os.environ['CLEARML_API_SECRET_KEY'] = "ibFYNMzbUiVb8VpRZOZducTBVRUHfpDMWLe4AQE2C4vrsnl4JU"
 
     current_date = dt.datetime.now().strftime('%d-%m')
     task = Task.init(project_name="ArLab Classifier", task_name=f"3 : Train model {current_date}")
@@ -280,8 +252,6 @@ def pipeline_clearml_create_model():
     task.upload_artifact(f'ArLab Model {current_date}',model)
     task.upload_artifact(f'vectorizer {current_date}', vectorizer)
 
-    #joblib.dump(model, f'models/nb_{current_date}.pkl', compress=True)
-
     task.mark_completed()
 
 with DAG(
@@ -291,8 +261,8 @@ with DAG(
         "email": ["airflow@example.com"],
         "email_on_failure": False,
         "email_on_retry": False,
-        "retries": 1,
-        "retry_delay": timedelta(minutes=5),
+        "retries": 5,
+        "retry_delay": timedelta(minutes=1),
     },
     description="Pipeline for ArLab",
     schedule=timedelta(minutes=30),
@@ -316,16 +286,11 @@ with DAG(
         python_callable=pipeline_clearml_preprocess_dataset,
     )
 
-    check_artifacts_task = PythonOperator(
-        task_id="check_artifacts",
-        provide_context=True,
-        python_callable=check_artifacts
-    )
 
     modeling = PythonOperator(
         task_id="modeling",
         python_callable=pipeline_clearml_create_model,
     )
 
-    scraping_ds >> create_ds >> preprocess_ds >> check_artifacts_task >> modeling
+    scraping_ds >> create_ds >> preprocess_ds >> modeling
 
