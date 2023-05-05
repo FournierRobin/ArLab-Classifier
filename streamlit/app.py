@@ -3,26 +3,23 @@ import requests
 
 st.title('Sports Articles Classifier')
 
-# API endpoint
 api_url = "http://api:8000/predict"
 
-# Text input
 text_input = st.text_area("Enter your text here:", height=200)
 
-# Button to submit the text to the API
 if st.button("Submit"):
-    # Make the API request
     response = requests.post(api_url, json={"text": text_input})
     
-    # Display the response
     if response.status_code == 200:
         prediction = response.json()['label']
         if prediction == "Aucun model disponible":
-            st.text(prediction)
+            st.subheader(prediction)
         else:    
-            st.text(f"Ce texte parle de {prediction}")
+            st.subheader(f"Ce texte parle de {prediction}")
     else:
-        st.write("Error:", response.status_code)
+        st.subheader("Error:", response.status_code)
+
+st.header("Liens utiles")
 
 st.markdown(
     """

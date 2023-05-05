@@ -176,7 +176,7 @@ def testing_model(test_phrase: str, vectorizer, model):
 
 
 def pipeline_scraping_dataset():
-    football_df, rugby_df, basket_df = scrape_all(nb_articles_par_sujet=30)
+    football_df, rugby_df, basket_df = scrape_all(nb_articles_par_sujet=300)
     current_date = dt.datetime.now().strftime('%d-%m')
     creating_full_df(current_date=current_date, football_df=football_df, rugby_df=rugby_df, basket_df=basket_df)
 
@@ -254,6 +254,13 @@ def pipeline_clearml_create_model():
 
     task.mark_completed()
 
+    try:
+        model_task = Task.get_task(project_name="ArLab Classifier", task_name=f"3 : Train model {current_date}")
+        model = model_task.artifacts[f'ArLab Model {current_date}'].get()
+        vectorizer = model_task.artifacts[f'vectorizer {current_date}'].get()
+    except:
+        raise ValueError("Some artifacts are missing")
+
 with DAG(
     "pipeline_arlab",
     default_args={
@@ -265,7 +272,7 @@ with DAG(
         "retry_delay": timedelta(minutes=1),
     },
     description="Pipeline for ArLab",
-    schedule=timedelta(minutes=30),
+    schedule=timedelta(days=1),
     start_date=datetime(2023, 1, 1),
     catchup=False,
     tags=["pipeline_arlab"],
